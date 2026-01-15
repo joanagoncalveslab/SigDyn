@@ -1,0 +1,11 @@
+name: sigdyn-sigprofiler
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - python=3.10
+  - sigprofilerassignment
+  - sigprofilermatrixgenerator
+  - numpy
+  - pandas
+  - scipy

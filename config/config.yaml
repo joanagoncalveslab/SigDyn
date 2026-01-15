@@ -1,0 +1,24 @@
+########################################
+# Input files
+########################################
+
+inputs:
+  # Output of PhylinSic (external prerequisite)
+  # This file MUST exist before running SigDyn
+  phylinsic_genotypes: "data/phylinsic/genotypes.txt"
+
+########################################
+# Variant filtering 
+########################################
+
+filtering:
+
+  # Whether to use a Panel of Normals (PON)
+  use_pon: true
+
+  # Path to GATK PON VCF (used if matched normal is absent)
+  pon_vcf: "resources/PON/pon.vcf"
+
+
+resources:
+  threads: 8

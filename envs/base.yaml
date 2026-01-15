@@ -1,0 +1,12 @@
+name: sigdyn-base
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - python=3.10
+  - pandas
+  - numpy
+  - ete3
+  - scikit-learn
+  - scipy
+  - pyyaml

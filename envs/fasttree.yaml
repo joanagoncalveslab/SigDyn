@@ -1,0 +1,6 @@
+name: sigdyn-fasttree
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - fasttree
