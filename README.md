@@ -54,19 +54,18 @@ All Python and tool dependencies are handled automatically using Snakemake’s `
   * columns = cells
   * entries = `R` (for homozygous reference sites), `H` (for heterozygous sites), or `A` (for homozygous alternate sites)
 
-> SigDyn does not rerun PhylinSic.
-> The user must run PhylinSic separately and provide the genotypes.txt output under data/phylinsic/. 
+> The user must run PhylinSic (also available as a Snakemake workflow here: https://github.com/U54Bioinformatics/PhylinSic_Project/tree/main, and provide the genotypes.txt output under data/phylinsic/.
+> A note at the end of this README describes some implementation choices used in our setup of the PhylinSic workflow to improve runtime and ensure compatibility with downstream SigDyn analyses.
 
 ### **Reference files**
 
 * `COSMIC_v3.4_SBS_GRCh38.txt` should be downloaded from https://cancer.sanger.ac.uk/signatures/downloads/ and added to the directory resources/
 
-
 ## **Germline variant removal**
 
 SigDyn supports **two strategies** for removing germline variants:
 
-### **1Panel of Normals (PON)** *(default in this workflow)*
+### **Panel of Normals (PON)** *(default in this workflow)*
 
 * Variants present in a population-level panel (e.g. 1000 Genomes) are removed.
 * For that, the file should be downloaded from https://gatk.broadinstitute.org/hc/en-us/articles/360035890631-Panel-of-Normals-PON 
@@ -80,7 +79,10 @@ SigDyn supports **two strategies** for removing germline variants:
 
 ## **Running the workflow**
 
-### **Step 1 — Generate unrooted tree & rooting suggestion**
+### **Step 1 — Generate the genotypes.txt file using the snakemake workflow of PhylinSic**
+
+
+### **Step 2 — Generate unrooted tree & rooting suggestion**
 
 ```bash
 snakemake --use-conda --conda-frontend conda --cores 8 stage1_unrooted -p
@@ -100,7 +102,7 @@ Outputs:
 
 ---
 
-### **Step 2 — Manual rooting (required)**
+### **Step 3 — Manual rooting (required)**
 
 SigDyn **intentionally pauses** here to allow biologically informed rooting.
 
@@ -116,7 +118,7 @@ This step ensures that the root reflects tumor evolutionary history rather than 
 
 ---
 
-### **Step 3 — Resume full analysis**
+### **Step 4 — Resume full analysis**
 
 ```bash
 snakemake --use-conda --conda-frontend conda --cores 8 stage2_full
@@ -132,15 +134,7 @@ This will:
 * Output final signature exposures for all nodes and single-cells.
 
 
-
 ---
 
-## **Citing SigDyn**
-
-If you use SigDyn, please cite also:
-
-* COSMIC signatures (Tate et al., 2019)
-* SigProfilerAssignment (Díaz-Gay et al., 2023)
-* PhylinSic (Liu et al., 2023)
-* FastTree (Price et al., 2010)
+### **Final note regarding PhylinSic adjustments**
 
