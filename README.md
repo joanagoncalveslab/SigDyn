@@ -5,7 +5,7 @@
 SigDyn is a Snakemake workflow designed to study mutational processes and their dynamics in tumors using single-cell RNA-seq data from one timepoint.
 It integrates single-cell variant information, phylogenetic reconstruction, and mutational signature analysis to track how mutational processes vary during tumor evolution.
 
-https://github.com/joanagolcalveslab/SigDyn/SigDyn.pdf
+https://github.com/joanagoncalveslab/SigDyn/blob/main/SigDyn.pdf
 
 ---
 
