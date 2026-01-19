@@ -14,7 +14,7 @@ It integrates single-cell variant information, phylogenetic reconstruction, and 
 SigDyn consists of 3 steps:
 
 1. **Single-cell somatic mutation detection**
-   Genotype matrices are inferred externally using **PhylinSic**, followed by additional filtering of germline variants and artifacts.
+   Reads are aligned using CellRanger and genotype matrices are inferred using PhylinSic, followed by additional filtering of germline variants and artifacts.
 
 2. **Cancer cell phylogeny inference**
    A phylogenetic tree is reconstructed from variant information using FastTree, followed by (optional) manual rooting to reflect tumor evolution.
