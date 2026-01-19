@@ -3,7 +3,7 @@
 **SigDyn: single-cell mutational signature dynamics**
 
 SigDyn is a workflow designed to study mutational processes and their dynamics in tumors using single-cell RNA-seq data from one timepoint.
-It integrates single-cell variant information, phylogenetic reconstruction, and mutational signature analysis to track how mutational processes vary during tumor evolution.
+It integrates single-cell variant information, phylogenetic reconstruction, and mutational signature analysis to track how mutational processes evolve during tumor evolution.
 
 ![SigDyn workflow](SigDyn.png)
 
