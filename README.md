@@ -43,12 +43,6 @@ All Python and tool dependencies are handled automatically using snakemake’s `
 
 ---
 
-### **Matched normal samples (when available)**
-
-* If matched normal single-cell or bulk samples are available, variants homozygous alternate present in normal cells can be filtered instead.
-* The filtering script can be adapted by the user to use matched normals rather than a PON.
-
-
 ## **Running the workflow (quick start)**
 
 ### **Step 1 — Alignment (using CellRanger) and initial single-cell variant calling**
@@ -60,10 +54,12 @@ All Python and tool dependencies are handled automatically using snakemake’s `
 
 ### **Step 2 — Varinant filtering, and tree inference**
 
-After having the genotypes.txt file under data/phylinsic/, all under remaining steps that follow use the snakemake pipeline in this repository. 
-For the following step, a Panel of Normals can be downloaded from https://gatk.broadinstitute.org/hc/en-us/articles/360035890631-Panel-of-Normals-PON 
-Other files of preference to the user containing common germline variants and/or artifacts can also be used.
+* After having the genotypes.txt file under data/phylinsic/, all under remaining steps that follow use the snakemake pipeline in this repository. 
+* For the following step, a Panel of Normals can be downloaded from https://gatk.broadinstitute.org/hc/en-us/articles/360035890631-Panel-of-Normals-PON 
+* Other files of preference to the user containing common germline variants and/or artifacts can also be used.
 * It should then be added to resources/ under the name pon.vcf
+* If matched normal single-cell or bulk samples are available, variants homozygous alternate present in normal cells can be filtered instead.
+* The filtering script can be adapted by the user to use matched normals rather than a PON.
 
 ```bash
 snakemake --use-conda --conda-frontend conda --cores 8 stage1_unrooted -p
@@ -121,8 +117,8 @@ This will:
 
 ### **Final note regarding PhylinSic adjustments**
   
-For the PhylinSic pipeline, some adjustments were made to both improve reliability of smoothing and efficiency of running the pipeline by changing the rules "select_neighbors2", "calc_neighbor_scores1" and "calc_neighbor_scores2" (the updated rules are bellow and can be updated in the snakefile of PhylinSic before running it) and updating the script "select_neighbors1" to the one under PhylinSic_adjusted_scripts/. 
-We advise users to do the same.
+* For the PhylinSic pipeline, some adjustments were made to both improve reliability of smoothing and efficiency of running the pipeline by changing the rules "select_neighbors2", "calc_neighbor_scores1" and "calc_neighbor_scores2" (the updated rules are bellow and can be updated in the snakefile of PhylinSic before running it) and updating the script "select_neighbors1" to the one under PhylinSic_adjusted_scripts/. 
+* We advise users to do the same.
 
 ```python
 rule select_neighbors2:
