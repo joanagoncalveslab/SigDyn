@@ -119,12 +119,12 @@ This will:
 
 ---
 
-[### **Final note regarding PhylinSic adjustments**
+### **Final note regarding PhylinSic adjustments**
   
 For the PhylinSic pipeline, some adjustments were made to both improve reliability of smoothing and efficiency of running the pipeline by changing the rules "select_neighbors2", "calc_neighbor_scores1" and "calc_neighbor_scores2" (the updated rules are bellow and can be updated in the snakefile of PhylinSic before running it) and updating the script "select_neighbors1" to the one under PhylinSic_adjusted_scripts/. 
 We advise users to do the same.
 
-
+```python
 rule select_neighbors2:
     input:
         [opj(GENOTYPE_DIR, "knn.neighbors.%s.txt" % batch)
@@ -146,7 +146,7 @@ rule calc_neighbor_scores1:
         K=TERNARY_K,
         num_samples=TERNARY_SAMPLES,
         rng_seed=PHYLO_RNG_SEED,
-        start=lambda wildcards: int(wildcards.batch) +1,
+        start=lambda wildcards: int(wildcards.batch) + 1,
         skip=len(KNN_BATCHES),
         num_cores=workflow.cores,
     script:
@@ -162,8 +162,9 @@ rule calc_neighbor_scores2:
         K=TERNARY_K,
         num_samples=TERNARY_SAMPLES,
         rng_seed=PHYLO_RNG_SEED,
-        start=lambda wildcards: int(wildcards.batch) +1,
+        start=lambda wildcards: int(wildcards.batch) + 1,
         skip=len(KNN_BATCHES),
         num_cores=workflow.cores,
     script:
         "scripts/calc_neighbor_scores1.R"
+```
