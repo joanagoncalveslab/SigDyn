@@ -43,24 +43,6 @@ All Python and tool dependencies are handled automatically using snakemake’s `
 
 ---
 
-## **Inputs**
-
-### **Required**
-
-### **Reference files**
-
-* `COSMIC_v3.4_SBS_GRCh38.txt` should be downloaded from https://cancer.sanger.ac.uk/signatures/downloads/ and added to the directory resources/
-
-## **Germline variant removal**
-
-SigDyn supports **two strategies** for removing germline variants:
-
-### **Panel of Normals (PON)** *(default in this workflow)*
-
-* Variants present in a population-level panel (e.g. 1000 Genomes) are removed.
-* For that, the file should be downloaded from https://gatk.broadinstitute.org/hc/en-us/articles/360035890631-Panel-of-Normals-PON 
-* It should then be added to resources/ under the name pon.vcf
-
 ### **Matched normal samples (when available)**
 
 * If matched normal single-cell or bulk samples are available, variants homozygous alternate present in normal cells can be filtered instead.
@@ -71,14 +53,17 @@ SigDyn supports **two strategies** for removing germline variants:
 
 ### **Step 1 — Alignment (using CellRanger) and initial single-cell variant calling**
 
-Starting from FASTQ sample(s), CellRanger should be used for aligment and preprocessing following an appropriate pipeline depending on the input data (see https://www.10xgenomics.com/support/software/cell-ranger/latest/analysis). 
-Afterwards, variant calling using the PhylinSic workflow (available at https://github.com/U54Bioinformatics/PhylinSic_Project/tree/main) should be implemented from the first step (_Prepare the reference genome_) until the 8th step (_Call/impute genotypes_). This will allow the user to obtain a "genotypes.txt" that will be the input for the remaining steps of the workflow here described. An example (mock) genotypes.txt file is provided in this repository. 
+* Starting from FASTQ sample(s), CellRanger should be used for aligment and preprocessing following an appropriate pipeline depending on the input data (see https://www.10xgenomics.com/support/software/cell-ranger/latest/analysis). 
+* Afterwards, variant calling using the PhylinSic workflow (available at https://github.com/U54Bioinformatics/PhylinSic_Project/tree/main) should be implemented from the first step (_Prepare the reference genome_) until the 8th step (_Call/impute genotypes_). This will allow the user to obtain a "genotypes.txt" that will be the input for the remaining steps of the workflow here described. An example (mock) genotypes.txt file is provided in this repository. 
 
-> A note at the end of this README describes some implementation choices used in our setup of the PhylinSic workflow to improve runtime and ensure compatibility with downstream SigDyn analyses.
+[> A note at the end of this README describes some implementation choices used in our setup of the PhylinSic workflow to improve runtime and ensure compatibility with downstream SigDyn analyses.]
 
 ### **Step 2 — Varinant filtering, and tree inference**
 
 After having the genotypes.txt file under data/phylinsic/, all under remaining steps that follow use the snakemake pipeline in this repository. 
+For the following step, a Panel of Normals can be downloaded from https://gatk.broadinstitute.org/hc/en-us/articles/360035890631-Panel-of-Normals-PON 
+Other files of preference to the user containing common germline variants and/or artifacts can also be used.
+* It should then be added to resources/ under the name pon.vcf
 
 ```bash
 snakemake --use-conda --conda-frontend conda --cores 8 stage1_unrooted -p
@@ -100,9 +85,9 @@ Outputs:
 
 ### **Step 3 — Manual rooting (optional)**
 
-SigDyn **intentionally pauses** here to allow biologically informed rooting.
+SigDyn intentionally pauses here to allow biologically informed rooting.
 
-1. Open the unrooted tree in **FigTree**
+1. Open the unrooted tree in FigTree
 2. Root the tree (e.g. using the suggested root cell)
 3. Export as (in newick format):
 
@@ -115,6 +100,9 @@ In the case the user does not want to root the tree, they must change the naming
 ---
 
 ### **Step 4 — Resume full analysis**
+
+For this step:
+* `COSMIC_v3.4_SBS_GRCh38.txt` should be downloaded from https://cancer.sanger.ac.uk/signatures/downloads/ and added to the directory resources/
 
 ```bash
 snakemake --use-conda --conda-frontend conda --cores 8 stage2_full
@@ -131,7 +119,7 @@ This will:
 
 ---
 
-### **Final note regarding PhylinSic adjustments**
+[### **Final note regarding PhylinSic adjustments**
   
-For the PhylinSic pipeline, some adjustments were made to both improve reliability of smoothing and efficiency of running the pipeline by changing one rule and paralellizing another. We advise users to do the same.
+For the PhylinSic pipeline, some adjustments were made to both improve reliability of smoothing and efficiency of running the pipeline by changing one rule and paralellizing another. We advise users to do the same.]
 
