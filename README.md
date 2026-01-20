@@ -56,8 +56,6 @@ All Python and tool dependencies are handled automatically using snakemake’s `
 * Starting from FASTQ sample(s), CellRanger should be used for aligment and preprocessing following an appropriate pipeline depending on the input data (see https://www.10xgenomics.com/support/software/cell-ranger/latest/analysis). 
 * Afterwards, variant calling using the PhylinSic workflow (available at https://github.com/U54Bioinformatics/PhylinSic_Project/tree/main) should be implemented from the first step (_Prepare the reference genome_) until the 8th step (_Call/impute genotypes_). This will allow the user to obtain a "genotypes.txt" that will be the input for the remaining steps of the workflow here described. An example (mock) genotypes.txt file is provided in this repository. 
 
-[> A note at the end of this README describes some implementation choices used in our setup of the PhylinSic workflow to improve runtime and ensure compatibility with downstream SigDyn analyses.]
-
 ### **Step 2 — Varinant filtering, and tree inference**
 
 After having the genotypes.txt file under data/phylinsic/, all under remaining steps that follow use the snakemake pipeline in this repository. 
@@ -116,10 +114,4 @@ This will:
 * Identify active signatures (present in ≥10% of cells)
 * Re-assign signatures using only active signatures (leaves & internal nodes)
 * Output final signature exposures for all nodes and single-cells.
-
----
-
-[### **Final note regarding PhylinSic adjustments**
-  
-For the PhylinSic pipeline, some adjustments were made to both improve reliability of smoothing and efficiency of running the pipeline by changing one rule and paralellizing another. We advise users to do the same.]
 
