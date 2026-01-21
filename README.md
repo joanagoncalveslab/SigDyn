@@ -16,7 +16,7 @@ SigDyn consists of 3 steps:
 1. **Single-cell somatic mutation detection**
    Reads are aligned using CellRanger and genotype matrices are inferred using PhylinSic, followed by additional filtering of germline variants and artifacts.
 
-2. **Cancer cell phylogeny inference**
+2. **Tumor cell phylogeny inference**
    A phylogenetic tree is reconstructed from variant information using FastTree, followed by (optional) manual rooting to reflect tumor evolution.
 
 3. **Mutational signature dynamics**
@@ -45,77 +45,49 @@ All Python and tool dependencies are handled automatically using snakemake’s `
 
 ## **Running the workflow (quick start)**
 
-### **Step 1 — Alignment (using CellRanger) and initial single-cell variant calling**
+#### 1. Alignment
+* Align the raw single-cell sequence files (FASTQ) following a suitable pipeline for your input data.
+    * For single-cell sequencing data acquired using 10x Genomics, CellRanger is available at https://www.10xgenomics.com/support/software/cell-ranger/latest/analysis.
 
-* Starting from FASTQ sample(s), CellRanger should be used for aligment and preprocessing following an appropriate pipeline depending on the input data (see https://www.10xgenomics.com/support/software/cell-ranger/latest/analysis). 
-* Afterwards, variant calling using the PhylinSic workflow (available at https://github.com/U54Bioinformatics/PhylinSic_Project/tree/main) should be implemented from the first step (_Prepare the reference genome_) until the 8th step (_Call/impute genotypes_). This will allow the user to obtain a "genotypes.txt" that will be the input for the remaining steps of the workflow here described. An example (mock) genotypes.txt file is provided in this repository. 
+#### 2. Variant calling
+* Execute steps 1 to 8 ("_Prepare the reference genome_" to "_Call/impute genotypes_") of the PhylinSic workflow, available at https://github.com/U54Bioinformatics/PhylinSic_Project/tree/main.
+* **Input:** BAM files obtained in step 1 above.
+* **Output:** `genotypes.txt`, to be placed under `data/phylinsic` (a mock file is provided).
 
 > A note at the end of this README describes some implementation choices used in our setup of the PhylinSic workflow to improve runtime and ensure compatibility with downstream SigDyn analyses.
 
-### **Step 2 — Varinant filtering, and tree inference**
-
-* After having the genotypes.txt file under data/phylinsic/, all under remaining steps that follow use the snakemake pipeline in this repository. 
-* For the following step, a Panel of Normals can be downloaded from https://gatk.broadinstitute.org/hc/en-us/articles/360035890631-Panel-of-Normals-PON 
-* Other files of preference to the user containing common germline variants and/or artifacts can also be used.
-* It should then be added to resources/ under the name pon.vcf
-* If matched normal single-cell or bulk samples are available, variants homozygous alternate present in normal cells can be filtered instead.
-* The filtering script can be adapted by the user to use matched normals rather than a PON.
-
+#### 3. Variant filtering and tree inference
+* Execute the following snakemake command using the pipeline under the root of this repository:
 ```bash
 snakemake --use-conda --conda-frontend conda --cores 8 stage1_unrooted -p
 ```
+* **Input:** `genotypes.txt` file under `data/phylinsic` and `pon.vcf`file containing the variants to filter (based on a panel of normals or a matched normal sample) under `resources/`. Note: in the paper, we used the panel of normals available at https://gatk.broadinstitute.org/hc/en-us/articles/360035890631-Panel-of-Normals-PON.
+* **Output:** two files, `results/trees/cell_tree.unrooted` and `results/trees/root_cell.txt`.
+* **This command will:** filter variants present in the `pon.vcf` file, convert genotypes to FASTA format, infer an unrooted phylogenetic tree, and suggest a root candidate cell.
 
-This will:
+#### 4. Tree rooting (optional)
+* SigDyn intentionally pauses to allow for tree rooting.
+    * To perform rooting: open the unrooted tree file `results/trees/cell_tree.unrooted` in FigTree (available at https://tree.bio.ed.ac.uk/software/figtree/), root the tree e.g. using the suggested root cell, and export in newick format to output file `results/trees/cell_tree.rooted`.
+    * To skip rooting, simply rename the file `cell_tree.unrooted` to `cell_tree.rooted`.
 
-* Filter germline variants
-* Suggest a root candidate cell (highest reference burden)
-* Convert genotypes to FASTA
-* Infer an unrooted phylogenetic tree
-
-Outputs:
-
-* `results/trees/cell_tree.unrooted`
-* `results/trees/root_cell.txt`
-
----
-
-### **Step 3 — Manual rooting (optional)**
-
-SigDyn intentionally pauses here to allow biologically informed rooting.
-
-1. Open the unrooted tree in FigTree
-2. Root the tree (e.g. using the suggested root cell)
-3. Export as (in newick format):
-
-   ```
-   results/trees/cell_tree.rooted
-   ```
-
-In the case the user does not want to root the tree, they must change the naming of the file "cell_tree.unrooted" to "cell_tree.rooted".
-
----
-
-### **Step 4 — Resume full analysis**
-
-For this step:
-* `COSMIC_v3.4_SBS_GRCh38.txt` should be downloaded from https://cancer.sanger.ac.uk/signatures/downloads/ and added to the directory resources/
-
+#### 5. Mutational signature activity estimation
+* Execute the following snakemake command using the pipeline under the root of this repository:
 ```bash
 snakemake --use-conda --conda-frontend conda --cores 8 stage2_full
 ```
+* **Input:** `cell_tree.rooted` file under `results/trees` and mutational signatures `COSMIC_v3.4_SBS_GRCh38.txt` file under `resources/`. The mutational signatures can be downloaded from https://cancer.sanger.ac.uk/signatures/downloads/.
+* **Output:**
+    * final signature activities for every cell and internal ancestor node: `exposures_active_signatures.txt` under `results/signatures/`
+    * phylogenetic tree with labeled internal ancestor nodes: `cell_tree.rooted.named`
+* **This will:** create genotypes for internal ancestor nodes, prepare VCF files, create mutational profiles and estimate COSMIC mutational signature activities for cells (leaves), identify active signatures (present in ≥10% of cells), re-estimate signature activities using only active signatures for both cells (leaves) and internal ancestor nodes.
 
-This will:
-
-* Build mutation profiles for all internal (ancestral) nodes
-* Prepare VCF files
-* Assign COSMIC mutational signatures (leaves)
-* Identify active signatures (present in ≥10% of cells)
-* Re-assign signatures using only active signatures (leaves & internal nodes)
-* Output final signature exposures for all nodes and single-cells.
+---
+## Reproducing the figures in the paper
+* All scripts needed to reproduce the figures in the paper are available under `Case_studies/`.
 
 ---
 
-### **Final note regarding PhylinSic adjustments**
+#### **Final note regarding PhylinSic adjustments**
   
 * For the PhylinSic pipeline, some adjustments were made to both improve reliability of smoothing and efficiency of running the pipeline by changing the rules "select_neighbors2", "calc_neighbor_scores1" and "calc_neighbor_scores2" (the updated rules are bellow and can be updated in the snakefile of PhylinSic before running it) and updating the script "select_neighbors1" to the one under PhylinSic_adjusted_scripts/. 
 * We advise users to do the same.
